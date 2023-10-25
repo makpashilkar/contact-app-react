@@ -1,24 +1,44 @@
-import logo from './logo.svg';
-import './App.css';
+import "./App.css";
+import React from "react";
+import { v4 } from "uuid";
+import Header from "./components/Header";
+import AddContact from "./components/AddContact";
+import ContactList from "./components/ContactList";
+import { useState, useEffect } from "react";
 
 function App() {
+  const LOCAL_STORAGE_KEY = "contacts";
+  const [contacts, setContacts] = useState([]);
+
+  const addContactHandler = (contact) => {
+    console.log(contact);
+    setContacts([...contacts, { id: v4(), ...contact }]);
+  };
+
+  const removeContacthandler = (id) => {
+    const newContactList = contacts.filter((contact) => {
+      return contact.id !== id;
+    });
+    setContacts(newContactList);
+  };
+
+  useEffect(() => {
+    const retriveContacts = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY));
+
+    if (retriveContacts) setContacts(retriveContacts);
+  }, []);
+
+  useEffect(() => {
+    if (contacts?.length)
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(contacts));
+  }, [contacts]);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <>
+      <Header />
+      <AddContact addContactHandler={addContactHandler} />
+      <ContactList contacts={contacts} getContactId={removeContacthandler} />
+    </>
   );
 }
 
